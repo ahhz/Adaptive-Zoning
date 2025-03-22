@@ -7,9 +7,9 @@ import numpy as np
 def map_to_n_clusters(n, zone_tree, reclass = True):
     def get_cluster(index):
         p = zone_tree.get_parent(index)
-        if p != None and p < zone_tree.get_size() - n - 1:
+        if p != None and p < zone_tree.get_size() - n + 1:
             return get_cluster(p)
-        return p if not reclass else p - (zone_tree.get_size() - n - 1)
+        return index if not reclass else index - (zone_tree.get_size() - n + 1)
 
     return [get_cluster(index) for index in range(zone_tree.get_num_leafs())]
 
