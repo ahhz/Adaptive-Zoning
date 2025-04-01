@@ -2,7 +2,7 @@ from typing import List, Optional, Set, Tuple
 class tree:
     """
     Represents a hierarchical tree structure for zones, defining parent-child relationships.
-    The tree structure is simple, but sufficient to support the Adaptive Zoning computations.
+    The tree structure is simple, but sufficient to support the Adaptive Zone System computations.
     
     The initial `num_leafs` indices represent the leaf nodes. As zones are merged, new parent
     nodes are created with indices greater than the leaf nodes. The last merged zone becomes
@@ -123,3 +123,41 @@ class tree:
             int: The total number of nodes in the tree.
         """
         return len(self.parent)
+     
+    def get_leafs(self,node) -> List[int]:
+        """
+        Returns the list of leaf indices belonging to a given node in the tree
+        
+        Returns:
+            List[int]: The list of nodes that are the leafs under the given node
+        """
+        candidates = [node]
+        leafs = []
+        for candidate in candidates:
+            if self.children[candidate] == None:
+                leafs.append(candidate)
+            else:
+                candidates.extend(self.children[candidate])
+        return leafs
+
+    def map_leafs_to_n_groups(self, n : int, renumber : bool = False)->List[int]:
+        """
+        Returns a list the for each leaf node specifies which group it belongs for a given number of groups. 
+        
+         Args:
+            n: The number of groups
+           renumber: if this is set to True the groups are renumbers consecutively from zero, 
+           otherwise the index of the group node is returned. 
+           
+        Returns: 
+            List[int]: List of size num_leafs with the associate group index for each leaf in order
+        """
+        max_index = 2 * self.num_leafs - n 
+        group_indices = [i for i in range(max_index) if self.parent[i] >= max_index]
+        out = [0 for _ in range(self.num_leafs)]
+        for index, group in enumerate(group_indices):
+            leafs = self.get_leafs(group)
+            for leaf in leafs:
+                out[leaf] = index if renumber else group
+        return out
+        

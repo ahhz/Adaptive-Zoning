@@ -1,5 +1,10 @@
 from typing import List, Optional, Set, Tuple
 
+import matplotlib.axes
+import matplotlib.figure
+import matplotlib.pyplot as plt
+
+from plot_adaptive_zoning import plot_agg_voronoi
 from tree_data import tree_data
 from cluster_maker import cluster_maker
 from neighbourhood_maker import neighbourhood_maker
@@ -56,11 +61,11 @@ class adaptive_zone_system:
         """
         self.beta = beta
         self.nbh_size = nbh_size
-        data = tree_data(origins, destinations, weight, points)
-        clusterer = cluster_maker(data, beta)
+        self.data = tree_data(origins.copy(), destinations.copy(), weight.copy(), points.copy())
+        clusterer = cluster_maker(self.data, beta)
         self.zone_tree = clusterer.create()
         self.distance_matrix = clusterer.get_distance_matrix()
-        neighbourhooder = neighbourhood_maker(data, beta, nbh_size, self.zone_tree, self.distance_matrix)
+        neighbourhooder = neighbourhood_maker(self.data, beta, nbh_size, self.zone_tree, self.distance_matrix)
         self.neighbourhoods = neighbourhooder.create()
         self.transposed_neighbourhoods = None
 
@@ -140,7 +145,32 @@ class adaptive_zone_system:
             for j in row:
                 self.transposed_neighbourhoods[j].append(i)
         return self.transposed_neighbourhoods
+    
+    def map_leaf_zones_to_neighbourhood(self, center:int, renumber : bool = False)->List[int]:
+        out = [0 for _ in range(self.zone_tree.get_num_leafs())]
+        for index, neighbour in enumerate(self.neighbourhoods[center]):
+            leafs = self.zone_tree.get_leafs(neighbour)
+            for leaf in leafs:
+                out[leaf] = index if renumber else neighbour
+        return out
+    
+    def map_leaf_zones_to_n_clusters(self, n : int, renumber : bool = False)->List[int]:
+        return self.zone_tree.map_leafs_to_n_groups(n, renumber)
+   
+    def plot_n_clusters_voronoi(self, n : int, ax: Optional[matplotlib.axes.Axes] = None) -> matplotlib.axes.Axes:
+        if ax is None:
+            fig, ax = plt.subplots()
+        agg = self.map_leaf_zones_to_n_clusters(n, True)
+        plot_agg_voronoi(agg, ax, self.data.points[:self.zone_tree.get_num_leafs()])
+        return ax
 
+    def plot_neighbourhood_voronoi(self, center : int, ax: Optional[matplotlib.axes.Axes] = None) -> matplotlib.axes.Axes:
+        if ax is None:
+            fig, ax = plt.subplots()
+        agg = self.map_leaf_zones_to_neighbourhood(center, True)
+        plot_agg_voronoi(agg, ax, self.data.points[:self.zone_tree.get_num_leafs()])
+        return ax
+     
 # to be removed:it is better to use the class interface.
 def adaptive_zoning(origins: List[float], destinations: List[float], weight: List[float], 
                     points: List[Tuple[float, float]], beta: float, nbh_size: int):
