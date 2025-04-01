@@ -22,7 +22,7 @@ class AdjacencyMatrix:
             centroids: A list of coordinate tuples (x, y) for each initial zone.
         """
         triangulation = Delaunay(np.array(centroids))
-        adjacents = [set() for _ in points]
+        adjacents = [set() for _ in centroids]
         for simplex in triangulation.simplices:
             for index in simplex:
                 other = set(simplex)

@@ -11,7 +11,7 @@ from tree_data import TreeData
 # negate the criterion: - (log(Oi) + log(Dj) + beta(dii+djj-dij) +log(1-exp(-2 beta(dii+djj)))
 # because the heap sorts from small to large.
 
-class neighbourhood_maker:
+class NeighbourhoodMaker:
     """
     Creates a set of neighborhoods for each leaf node in the zone tree.
 
@@ -40,13 +40,13 @@ class neighbourhood_maker:
             zone_tree: The hierarchical tree structure of the zones.
             distance_matrix: The lazy distance matrix for calculating distances between zones.
         """
-        self.distance_matrix = distance_matrix
-        self.zone_tree = zone_tree
-        self.data = data
-        self.beta = beta
-        self.nbh_size = nbh_size
+        self._distance_matrix = distance_matrix
+        self._zone_tree = zone_tree
+        self._data = data
+        self._beta = beta
+        self._nbh_size = nbh_size
 
-    def priority(self, i: int, j: int) -> float:
+    def _priority(self, i: int, j: int) -> float:
         """
         Calculates the priority for including zone `j` (or its descendants) in the neighborhood of leaf node `i`.
 
@@ -63,11 +63,11 @@ class neighbourhood_maker:
         Returns:
             float: The negated log-likelihood priority value. Lower values indicate higher priority.
         """
-        dii = self.distance_matrix.get(i, i)
-        djj = self.distance_matrix.get(j, j)
-        dij = self.distance_matrix.get(i, j)
+        dii = self._distance_matrix.get(i, i)
+        djj = self._distance_matrix.get(j, j)
+        dij = self._distance_matrix.get(i, j)
 
-        return -(log(self.data.origins[i]) + log(self.data.destinations[j]) + self.beta * (dii + djj - dij) + log(1 - exp(-2 * self.beta * (dii + djj))))
+        return -(log(self._data.origins[i]) + log(self._data.destinations[j]) + self._beta * (dii + djj - dij) + log(1 - exp(-2 * self._beta * (dii + djj))))
 
     def create(self) -> List[Set[int]]:
         """
@@ -84,20 +84,20 @@ class neighbourhood_maker:
                              the nodes in the neighborhood of the corresponding initial leaf node.
         """
         neighbourhoods = []
-        for i in range(self.zone_tree.get_num_leafs()):
+        for i in range(self._zone_tree.get_num_leafs()):
             q = []
-            root = self.zone_tree.get_last_added()
+            root = self._zone_tree.get_last_added()
             nbh_i = {root}
-            heappush(q, (self.priority(i, root), root))
-            while len(nbh_i) < self.nbh_size:
+            heappush(q, (self._priority(i, root), root))
+            while len(nbh_i) < self._nbh_size:
                 if not q:
                     break
                 j = heappop(q)[1]
-                children = self.zone_tree.get_children(j)
+                children = self._zone_tree.get_children(j)
                 if children:
                     nbh_i = (nbh_i | children) - {j}
                     for c in children:
-                        if self.zone_tree.has_children(c):
-                            heappush(q, (self.priority(i, c), c))
+                        if self._zone_tree.has_children(c):
+                            heappush(q, (self._priority(i, c), c))
             neighbourhoods.append(nbh_i)
         return neighbourhoods
