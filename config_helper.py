@@ -27,7 +27,7 @@ def read_api_key_from_config(section, keyname, config_file):
     except (configparser.NoSectionError, configparser.NoOptionError, FileNotFoundError):
         return None
 
-def get_key(section, keyname,config_file):
+def get_key(section, keyname, config_file):
     apikey = read_api_key_from_config(section, keyname, config_file)
     if not apikey:
         print("Enter your " + section + " " + keyname)
