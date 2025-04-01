@@ -1,7 +1,7 @@
 from math import sqrt
 from typing import List, Optional, Set, Tuple
 
-from tree import tree
+from tree import Tree
 
 class lazy_distance:
     """
@@ -23,7 +23,7 @@ class lazy_distance:
         zone_tree (tree): The hierarchical tree structure of the zones.
         weights (List[float]): A list of weight values for each zone.
     """
-    def __init__(self, points: List[Tuple[float,float]], zone_tree: tree, weights: List[float]):
+    def __init__(self, points: List[Tuple[float,float]], zone_tree: Tree, weights: List[float]):
         """
         Initializes the lazy distance calculator.
 

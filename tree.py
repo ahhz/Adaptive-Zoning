@@ -1,5 +1,7 @@
 from typing import List, Optional, Set, Tuple
-class tree:
+from collections import deque
+
+class Tree:
     """
     Represents a hierarchical tree structure for zones, defining parent-child relationships.
     The tree structure is simple, but sufficient to support the Adaptive Zone System computations.
@@ -8,14 +10,6 @@ class tree:
     nodes are created with indices greater than the leaf nodes. The last merged zone becomes
     the root of the tree. Parent zones always have a higher index than their children.
 
-    Attributes:
-        root (int): The index of the root node (the last merged zone).
-        num_leafs (int): The initial number of leaf nodes.
-        parent (List[Optional[int]]): A list where `parent[i]` stores the index of the parent
-                                       zone of zone `i`, or None if it's the root.
-        children (List[Optional[Set[int]]]): A list where `children[i]` stores a set
-                                                of the indices of the child zones of zone `i`,
-                                                or None if it's a leaf node.
     """
     def __init__(self, num_leafs: int = 0):
         """
@@ -24,19 +18,18 @@ class tree:
         Args:
             num_leafs: The initial number of leaf nodes in the tree. Defaults to 0.
         """
-        self.root = num_leafs
-        self.num_leafs = num_leafs
-        self.parent = [None for _ in range(num_leafs)]
-        self.children = [None for _ in range(num_leafs)]
+        self._num_leafs = num_leafs
+        self._parent = [None for _ in range(num_leafs)]
+        self._children = [None for _ in range(num_leafs)]
 
-    def get_root(self) -> int:
+    def get_last_added(self) -> int:
         """
-        Returns the index of the root node of the tree.
+        Returns the index of the last added node of the tree.
 
         Returns:
-            int: The index of the root node.
+            int: The index of the last added node.
         """
-        return self.root
+        return len(self._parent)-1
 
     def has_parent(self, index: int) -> bool:
         """
@@ -48,7 +41,7 @@ class tree:
         Returns:
             bool: True if the zone has a parent, False otherwise.
         """
-        return self.parent[index] is not None
+        return self._parent[index] is not None
 
     def get_parent(self, index: int) -> Optional[int]:
         """
@@ -60,7 +53,7 @@ class tree:
         Returns:
             Optional[int]: The index of the parent zone, or None if the zone has no parent (is the root).
         """
-        return self.parent[index]
+        return self._parent[index]
 
     def has_children(self, index: int) -> bool:
         """
@@ -72,7 +65,7 @@ class tree:
         Returns:
             bool: True if the zone has children, False otherwise.
         """
-        return self.children[index] is not None
+        return self._children[index] is not None
 
     def get_children(self, index: int) -> Optional[Set[int]]:
         """
@@ -84,7 +77,7 @@ class tree:
         Returns:
             Optional[Set[int]]: A set of the indices of the child zones, or None if the zone has no children.
         """
-        return self.children[index]
+        return self._children[index]
 
     def get_num_leafs(self) -> int:
         """
@@ -93,27 +86,26 @@ class tree:
         Returns:
             int: The initial number of leaf nodes.
         """
-        return self.num_leafs
+        return self._num_leafs
 
     def append_parent(self, children: Set[int]) -> int:
         """
         Appends a new parent node to the tree, representing the merging of the given child zones.
 
-        The new parent node becomes the new root of the subtree formed by the merged children.
         The `parent` attribute of each child is updated to point to the new parent.
 
         Args:
             children: A set of the indices of the child zones being merged.
 
         Returns:
-            int: The index of the newly created parent zone (which is the new root of the merged subtree).
+            int: The index of the newly created parent zone 
         """
-        self.root = len(self.children)
-        self.children.append(children)
-        self.parent.append(None)
+        index_of_last_added = len(self._parent)
+        self._children.append(children)
+        self._parent.append(None)
         for c in children:
-            self.parent[c] = self.root
-        return self.root
+            self._parent[c] = index_of_last_added
+        return index_of_last_added
 
     def get_size(self) -> int:
         """
@@ -131,13 +123,14 @@ class tree:
         Returns:
             List[int]: The list of nodes that are the leafs under the given node
         """
-        candidates = [node]
+        queue = deque([node])
         leafs = []
-        for candidate in candidates:
-            if self.children[candidate] == None:
-                leafs.append(candidate)
+        while queue:
+            next_node = queue.popleft() 
+            if next_node < self._num_leafs:
+                leafs.append(next_node)
             else:
-                candidates.extend(self.children[candidate])
+                queue.extend(self._children[next_node])
         return leafs
 
     def map_leafs_to_n_groups(self, n : int, renumber : bool = False)->List[int]:
@@ -146,15 +139,15 @@ class tree:
         
          Args:
             n: The number of groups
-           renumber: if this is set to True the groups are renumbers consecutively from zero, 
+           renumber: if this is set to True the groups are renumbered consecutively from zero, 
            otherwise the index of the group node is returned. 
            
         Returns: 
             List[int]: List of size num_leafs with the associate group index for each leaf in order
         """
-        max_index = 2 * self.num_leafs - n 
-        group_indices = [i for i in range(max_index) if self.parent[i] >= max_index]
-        out = [0 for _ in range(self.num_leafs)]
+        max_index = 2 * self._num_leafs - n 
+        group_indices = [i for i in range(max_index) if self._parent[i] >= max_index]
+        out = [0 for _ in range(self._num_leafs)]
         for index, group in enumerate(group_indices):
             leafs = self.get_leafs(group)
             for leaf in leafs:

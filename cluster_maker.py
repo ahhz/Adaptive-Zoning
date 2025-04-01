@@ -2,7 +2,7 @@ from heapq import heappush, heappop
 from math import exp,log
 from typing import List, Optional, Set, Tuple
 
-from tree import tree
+from tree import Tree
 from tree_data import tree_data
 from lazy_distance import lazy_distance
 from adjacency_matrix import adjacency_matrix
@@ -56,7 +56,7 @@ class cluster_maker:
         self.beta = beta
         self.queue = []
         self.adjacency = adjacency_matrix(data.points)
-        self.zone_tree = tree(len(data.origins))
+        self.zone_tree = Tree(len(data.origins))
         self.distance_matrix = lazy_distance(data.points, self.zone_tree, data.weights)
     
     # Note, this code is generalised to work with any number of zones in a merge candidate, however there are always exactly two. 
@@ -131,7 +131,7 @@ class cluster_maker:
         for adjacent in combined_adjacency:
             self.add_candidate_to_queue({adjacent, new_parent})
 
-    def create(self) -> tree:
+    def create(self) -> Tree:
         """
         Creates the hierarchical clustering of zones by iteratively merging the most
         favorable adjacent zones until no more merges are possible (priority queue is empty).

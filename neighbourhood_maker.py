@@ -3,7 +3,7 @@ from math import exp,log
 from typing import List, Optional, Set, Tuple
 
 from lazy_distance import lazy_distance
-from tree import tree
+from tree import Tree
 from tree_data import tree_data
 
 # criterion = Oi * Dj* (exp(beta *(dii + djj - dij)-exp(-beta *(dii + djj + dij))
@@ -29,7 +29,7 @@ class neighbourhood_maker:
         beta (float): A parameter influencing the priority function.
         nbh_size (int): The desired size (number of nodes) for each neighborhood.
     """
-    def __init__(self, data: tree_data, beta: float, nbh_size: int, zone_tree: tree, distance_matrix: lazy_distance):
+    def __init__(self, data: tree_data, beta: float, nbh_size: int, zone_tree: Tree, distance_matrix: lazy_distance):
         """
         Initializes the neighbourhood maker.
 
@@ -86,7 +86,7 @@ class neighbourhood_maker:
         neighbourhoods = []
         for i in range(self.zone_tree.get_num_leafs()):
             q = []
-            root = self.zone_tree.get_root()
+            root = self.zone_tree.get_last_added()
             nbh_i = {root}
             heappush(q, (self.priority(i, root), root))
             while len(nbh_i) < self.nbh_size:
