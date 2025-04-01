@@ -5,7 +5,7 @@ from typing import List, Optional, Set, Tuple
 from tree import Tree
 from tree_data import TreeData
 from lazy_distance import LazyDistance
-from adjacency_matrix import adjacency_matrix
+from adjacency_matrix import AdjacencyMatrix
 
 
 # take log of criterion to avoid overflow, order will remain the same, and criterios cannot be <=0 by definition, xc > xa,xb, wc = wa+wb :
@@ -55,7 +55,7 @@ class cluster_maker:
         self.data = data
         self.beta = beta
         self.queue = []
-        self.adjacency = adjacency_matrix(data.centroids)
+        self.adjacency = AdjacencyMatrix(data.centroids)
         self.zone_tree = Tree(len(data.origins))
         self.distance_matrix = LazyDistance(data.centroids, self.zone_tree, data.weights)
     

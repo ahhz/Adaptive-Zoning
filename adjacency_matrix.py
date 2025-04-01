@@ -2,7 +2,7 @@ from typing import List, Optional, Set, Tuple
 from scipy.spatial import Delaunay
 import numpy as np
 
-class adjacency_matrix:
+class AdjacencyMatrix:
     """
     Keeps track of the adjacency relationships between zones.
 
@@ -14,21 +14,21 @@ class adjacency_matrix:
         adjacents (List[Set[int]]): A list where `adjacents[i]` is a set containing the indices
                                      of the zones adjacent to zone `i`.
     """
-    def __init__(self, points: List[Tuple[float,float]]):
+    def __init__(self, centroids: List[Tuple[float,float]]):
         """
         Initializes the adjacency matrix based on Delaunay triangulation of the given points.
 
         Args:
-            points: A list of coordinate tuples (x, y) for each initial zone.
+            centroids: A list of coordinate tuples (x, y) for each initial zone.
         """
-        triangulation = Delaunay(np.array(points))
+        triangulation = Delaunay(np.array(centroids))
         adjacents = [set() for _ in points]
         for simplex in triangulation.simplices:
             for index in simplex:
                 other = set(simplex)
                 other.remove(index)
                 adjacents[index] = adjacents[index].union(other)
-        self.adjacents = adjacents
+        self._adjacents = adjacents
 
     def merge(self, children: Set[int]) -> Set[int]:
         """
@@ -45,13 +45,13 @@ class adjacency_matrix:
             Set[int]: A set of the indices of the zones that are now adjacent to the newly
                      created parent zone.
         """
-        n = len(self.adjacents)
-        child_sets = [self.adjacents[c] for c in children]
+        n = len(self._adjacents)
+        child_sets = [self._adjacents[c] for c in children]
         merged = set.union(*child_sets) - children
-        self.adjacents.append(merged)
+        self._adjacents.append(merged)
 
         for i in merged :
-            self.adjacents[i] = (self.adjacents[i] - children) | {n}
+            self._adjacents[i] = (self._adjacents[i] - children) | {n}
 
         return merged
 
@@ -62,4 +62,4 @@ class adjacency_matrix:
         Returns:
             List[Set[int]]: A list where each element is a set of adjacent zone indices.
         """
-        return self.adjacents
+        return self._adjacents
