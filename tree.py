@@ -114,7 +114,7 @@ class Tree:
         Returns:
             int: The total number of nodes in the tree.
         """
-        return len(self.parent)
+        return len(self._parent)
      
     def get_leafs(self,node) -> List[int]:
         """
@@ -139,8 +139,8 @@ class Tree:
         
          Args:
             n: The number of groups
-           renumber: if this is set to True the groups are renumbered consecutively from zero, 
-           otherwise the index of the group node is returned. 
+            renumber: if this is set to True the groups are renumbered consecutively from zero, 
+            otherwise the index of the group node is returned. 
            
         Returns: 
             List[int]: List of size num_leafs with the associate group index for each leaf in order
