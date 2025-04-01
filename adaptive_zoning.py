@@ -5,7 +5,8 @@ import matplotlib.figure
 import matplotlib.pyplot as plt
 
 from plot_adaptive_zoning import plot_agg_voronoi
-from tree_data import tree_data
+from tree import Tree
+from tree_data import TreeData
 from cluster_maker import cluster_maker
 from neighbourhood_maker import neighbourhood_maker
 
@@ -44,15 +45,15 @@ class adaptive_zone_system:
         nbh_size (int): The desired number of (leaf and aggregated) zones that each leaf zone's
                           neighborhood will aim to include.
     """
-    def __init__(self, origins: List[float], destinations: List[float], weight: List[float],
-                 points: List[Tuple[float, float]], beta: float, nbh_size: int):
+    def __init__(self, origins: List[float], destinations: List[float], weights: List[float],
+                 centroids: List[Tuple[float, float]], beta: float, nbh_size: int):
         """
         Initializes the adative_zone_system.
 
         Args:
             origins (List[float]): A list of origin values for each initial zone.
             destinations (List[float]): A list of destination values for each initial zone.
-            weight (List[float]): A list of weight values for each initial zone.
+            weights (List[float]): A list of weight values for each initial zone.
             points (List[Tuple[float, float]]): A list of coordinate tuples (x, y) for each initial zone,
                                                 representing their locations.
             beta (float): A parameter influencing the clustering and neighborhood formation.
@@ -61,7 +62,7 @@ class adaptive_zone_system:
         """
         self.beta = beta
         self.nbh_size = nbh_size
-        self.data = tree_data(origins.copy(), destinations.copy(), weight.copy(), points.copy())
+        self.data = TreeData(origins, destinations, weights, centroids)
         clusterer = cluster_maker(self.data, beta)
         self.zone_tree = clusterer.create()
         self.distance_matrix = clusterer.get_distance_matrix()
@@ -69,7 +70,7 @@ class adaptive_zone_system:
         self.neighbourhoods = neighbourhooder.create()
         self.transposed_neighbourhoods = None
 
-    def get_tree(self):
+    def get_tree(self) -> Tree:
         """
         Returns the hierarchical tree structure.
 
@@ -161,14 +162,14 @@ class adaptive_zone_system:
         if ax is None:
             fig, ax = plt.subplots()
         agg = self.map_leaf_zones_to_n_clusters(n, True)
-        plot_agg_voronoi(agg, ax, self.data.points[:self.zone_tree.get_num_leafs()])
+        plot_agg_voronoi(agg, ax, self.data.centroids[:self.zone_tree.get_num_leafs()])
         return ax
 
     def plot_neighbourhood_voronoi(self, center : int, ax: Optional[matplotlib.axes.Axes] = None) -> matplotlib.axes.Axes:
         if ax is None:
             fig, ax = plt.subplots()
         agg = self.map_leaf_zones_to_neighbourhood(center, True)
-        plot_agg_voronoi(agg, ax, self.data.points[:self.zone_tree.get_num_leafs()])
+        plot_agg_voronoi(agg, ax, self.data.centroids[:self.zone_tree.get_num_leafs()])
         return ax
      
 # to be removed:it is better to use the class interface.
