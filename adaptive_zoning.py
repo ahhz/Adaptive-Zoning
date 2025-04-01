@@ -136,13 +136,13 @@ class AdaptiveZoneSystem:
         if ax is None:
             fig, ax = plt.subplots()
         agg = self.map_leaf_zones_to_n_clusters(n, True)
-        plot_agg_voronoi(agg, ax, self._data.centroids[:self._zone_tree.get_num_leafs()])
+        plot_agg_voronoi(self._data.centroids[:self._zone_tree.get_num_leafs()],agg, ax)
         return ax
 
     def plot_neighbourhood_voronoi(self, center : int, ax: Optional[matplotlib.axes.Axes] = None) -> matplotlib.axes.Axes:
         if ax is None:
             fig, ax = plt.subplots()
         agg = self.map_leaf_zones_to_neighbourhood(center, True)
-        plot_agg_voronoi(agg, ax, self._data.centroids[:self._zone_tree.get_num_leafs()])
+        plot_agg_voronoi(self._data.centroids[:self._zone_tree.get_num_leafs()], agg, ax)
         return ax 
 
