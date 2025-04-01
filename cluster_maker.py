@@ -4,7 +4,7 @@ from typing import List, Optional, Set, Tuple
 
 from tree import Tree
 from tree_data import TreeData
-from lazy_distance import lazy_distance
+from lazy_distance import LazyDistance
 from adjacency_matrix import adjacency_matrix
 
 
@@ -57,7 +57,7 @@ class cluster_maker:
         self.queue = []
         self.adjacency = adjacency_matrix(data.centroids)
         self.zone_tree = Tree(len(data.origins))
-        self.distance_matrix = lazy_distance(data.centroids, self.zone_tree, data.weights)
+        self.distance_matrix = LazyDistance(data.centroids, self.zone_tree, data.weights)
     
     # Note, this code is generalised to work with any number of zones in a merge candidate, however there are always exactly two. 
     def priority(self, candidate: Set[int]) -> float:
@@ -154,7 +154,7 @@ class cluster_maker:
 
         return self.zone_tree
 
-    def get_distance_matrix(self) -> lazy_distance:
+    def get_distance_matrix(self) -> LazyDistance:
         """
         Returns the lazy distance matrix used by the cluster maker.
 

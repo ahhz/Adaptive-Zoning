@@ -2,7 +2,7 @@ from heapq import heappush, heappop
 from math import exp,log
 from typing import List, Optional, Set, Tuple
 
-from lazy_distance import lazy_distance
+from lazy_distance import LazyDistance
 from tree import Tree
 from tree_data import TreeData
 
@@ -29,7 +29,7 @@ class neighbourhood_maker:
         beta (float): A parameter influencing the priority function.
         nbh_size (int): The desired size (number of nodes) for each neighborhood.
     """
-    def __init__(self, data: TreeData, beta: float, nbh_size: int, zone_tree: Tree, distance_matrix: lazy_distance):
+    def __init__(self, data: TreeData, beta: float, nbh_size: int, zone_tree: Tree, distance_matrix: LazyDistance):
         """
         Initializes the neighbourhood maker.
 

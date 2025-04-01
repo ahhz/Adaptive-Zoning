@@ -3,7 +3,7 @@ from typing import List, Optional, Set, Tuple
 
 from tree import Tree
 
-class lazy_distance:
+class LazyDistance:
     """
     Calculates and caches the distances between zones in the hierarchical tree.
 
@@ -13,17 +13,8 @@ class lazy_distance:
     Distances are calculated on demand and stored in a cache (`matrix`) to avoid
     redundant computations.
 
-    Attributes:
-        matrix (List[Dict[int, float]]): A list where each element is a dictionary.
-                                          `matrix[i]` stores the distances from zone `i`
-                                          to other zones `j` (where `j > i`). The keys of
-                                          the inner dictionary are the indices `j`, and the
-                                          values are the calculated distances.
-        points (List[Tuple[float, float]]): A list of coordinate tuples (x, y) for each zone.
-        zone_tree (tree): The hierarchical tree structure of the zones.
-        weights (List[float]): A list of weight values for each zone.
     """
-    def __init__(self, points: List[Tuple[float,float]], zone_tree: Tree, weights: List[float]):
+    def __init__(self, centroids: List[Tuple[float,float]], zone_tree: Tree, weights: List[float]):
         """
         Initializes the lazy distance calculator.
 
@@ -32,10 +23,10 @@ class lazy_distance:
             zone_tree: The hierarchical tree structure of the zones.
             weights: A list of weight values for each initial zone.
         """
-        self.matrix = [dict() for _ in range(len(points))]
-        self.points = points
-        self.zone_tree = zone_tree
-        self.weights = weights
+        self._matrix = [dict() for _ in range(len(centroids))]
+        self._centroids = centroids
+        self._zone_tree = zone_tree
+        self._weights = weights
 
     def get(self, i: int, j: int) -> float:
         """
@@ -56,19 +47,19 @@ class lazy_distance:
         if i > j:
             i,j = j,i
 
-        if j in self.matrix[i]:
-            return self.matrix[i][j]
+        if j in self._matrix[i]:
+            return self._matrix[i][j]
 
         # assuming that the index of leafs is always lower than non-leafs
-        children = self.zone_tree.get_children(j)
+        children = self._zone_tree.get_children(j)
         if children:
-            dij = sum([self.weights[c] * self.get(i,c) for c in children]) / self.weights[j]
+            dij = sum([self._weights[c] * self.get(i,c) for c in children]) / self._weights[j]
         else:
-            dx = self.points[i][0]-self.points[j][0]
-            dy = self.points[i][1]-self.points[j][1]
+            dx = self._centroids[i][0]-self._centroids[j][0]
+            dy = self._centroids[i][1]-self._centroids[j][1]
             dij = sqrt(dx**2+dy**2)
 
-        self.matrix[i][j] = dij
+        self._matrix[i][j] = dij
         return dij
 
     def add_zone(self):
@@ -76,4 +67,4 @@ class lazy_distance:
         Adds a new empty dictionary to the `matrix` when a new merged zone is created,
         to hold distances from this new zone to others.
         """
-        self.matrix.append(dict())
+        self._matrix.append(dict())
