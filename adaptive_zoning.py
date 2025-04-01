@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from plot_adaptive_zoning import plot_agg_voronoi
 from tree import Tree
 from tree_data import TreeData
-from cluster_maker import cluster_maker
+from cluster_maker import ClusterMaker
 from neighbourhood_maker import NeighbourhoodMaker
 
 
@@ -63,7 +63,7 @@ class adaptive_zone_system:
         self.beta = beta
         self.nbh_size = nbh_size
         self.data = TreeData(origins, destinations, weights, centroids)
-        clusterer = cluster_maker(self.data, beta)
+        clusterer = ClusterMaker(self.data, beta)
         self.zone_tree = clusterer.create()
         self.distance_matrix = clusterer.get_distance_matrix()
         neighbourhooder = NeighbourhoodMaker(self.data, beta, nbh_size, self.zone_tree, self.distance_matrix)
