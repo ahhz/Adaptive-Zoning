@@ -60,12 +60,12 @@ def doubly_constrained(orig, dest, distance, beta, verbose = False):
 # find the value for beta that reproduces the desired average distance, using bisection search
 def calibrate_doubly_constrained(orig, dest, distance, target_average_distance, beta_min = 0, beta_max = 1, verbose = False):
    # high distance is associated with low beta
-   average_distance_max = doubly_constrained(orig, dest, distance, beta_min, verbose = verbose)[1]
-   average_distance_min = doubly_constrained(orig, dest, distance, beta_max, verbose = verbose)[1]
+    average_distance_max = doubly_constrained(orig, dest, distance, beta_min, verbose = verbose)[1]
+    average_distance_min = doubly_constrained(orig, dest, distance, beta_max, verbose = verbose)[1]
     
-   if average_distance_max < target_average_distance:
-       if verbose: print("calibrate_doubly_constrained: lower_bound is too high")
-       return None
+    if average_distance_max < target_average_distance:
+        if verbose: print("calibrate_doubly_constrained: lower_bound is too high")
+        return None
    
     if average_distance_min > target_average_distance:
        if verbose: print("calibrate_doubly_constrained: upper_bound is too low")
@@ -79,4 +79,4 @@ def calibrate_doubly_constrained(orig, dest, distance, target_average_distance, 
        else: 
            beta_min = beta
 
-   return beta
+    return beta
