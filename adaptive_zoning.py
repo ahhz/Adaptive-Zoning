@@ -171,7 +171,16 @@ class AdaptiveZoneSystem:
     def map_leaf_zones_to_n_clusters(self, n: int, 
                                      renumber: bool = False)->List[int]:
         return self._zone_tree.map_leafs_to_n_groups(n, renumber)
-   
+
+    def find_aggregated_neighbour(self, a: int, b: int)->int:
+        '''
+        Return the aggregated zone that contains b and is in the neighbourhood of a
+        '''
+        
+        while b not in self._neighbourhoods[a]:
+            b = self._zone_tree.get_parent(b)
+        return b
+    
     def plot_n_clusters_voronoi(self, n : int, 
                                 ax: Optional[matplotlib.axes.Axes] = None
                                 ) -> matplotlib.axes.Axes:
@@ -193,4 +202,8 @@ class AdaptiveZoneSystem:
         leaf_centroids = self._data.centroids[:num_leafs]
         plot_agg_voronoi(leaf_centroids, agg, ax)
         return ax 
+
+    def get_centroids(self)->List[Tuple[int,int]]:
+        return self._data.centroids
+        
 
